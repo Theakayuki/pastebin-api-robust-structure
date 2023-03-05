@@ -2,8 +2,6 @@ const express = require('express');
 const app = express();
 const pastes = require('./data/pastes-data');
 
-// TODO: Follow instructions in the checkpoint to implement ths API.
-
 app.use(express.json());
 
 // /paste routes
@@ -14,7 +12,7 @@ app.get('/pastes/:pasteId', (request, response, next) => {
     if (foundPaste) {
         response.json({ data: foundPaste });
     } else {
-        next(`Paste id not found: ${pasteId}`);
+        next({status: 404, message:`Paste id not found: ${pasteId}`});
     }
 });
 
@@ -39,23 +37,20 @@ app.post('/pastes', (req, res, next) => {
         pastes.push(newPaste);
         res.status(201).json({ data: newPaste });
     } else {
-       const error = new Error('A "text" property is required.');
-        error.status = 400;
-        next(error);
+        next({status: 400, message:'Text is required.'});
     }
 });
 
 // Not found handler
 app.use((request, response, next) => {
-    next(`Not found: ${request.originalUrl}`);
+    next({status: 404, message:`Not found: ${request.originalUrl}`});
 });
 
 // Error handler
 app.use((error, request, response, next) => {
-  const { status = 500, message = 'Something went wrong!' } = error;
-  console.error(message);
-    response.status(status).json({ error: message });
-    
+    console.error(error);
+    const { status = 500, message = 'Something went wrong!' } = error;
+    response.status(status).send({ error: message });
 });
 
 module.exports = app;

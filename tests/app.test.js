@@ -50,7 +50,7 @@ describe('app', () => {
                     name: 'New Paste',
                     syntax: 'javascript',
                     exposure: 'public',
-                    expiration: '1 hour',
+                    expiration: 15,
                     text: 'const x = 1;',
                     user_id: 1,
                 };
@@ -71,7 +71,7 @@ describe('app', () => {
                 };
                 const response = await request(app).post('/pastes').send({ data: newPaste });
                 expect(response.status).toBe(400);
-                expect(response.body.error).toBe('Text is required.');
+                expect(response.body.error).toBe("A 'text' property is required");
             });
 
             it('should respond with 400 if result is empty', async () => {
@@ -90,7 +90,7 @@ describe('app', () => {
                     .send({ data: { message: "Missing result" }});
 
                 expect(response.status).toBe(400);
-                expect(response.body.error).toBe('Text is required.');
+                expect(response.body.error).toBe("A 'name' property is required");
             });
 
         });

@@ -1,7 +1,5 @@
 const pastes = require('../data/pastes-data');
 
-
-
 let lastPasteId = pastes.reduce((maxId, paste) => Math.max(maxId, paste.id), 0);
 
 // validation for pastes
@@ -52,28 +50,28 @@ function expirationIsValidNumber(req, res, next) {
 }
 
 function pasteExists(req, res, next) {
-  const { pasteId } = req.params;
-  const foundPaste = pastes.find((paste) => paste.id === Number(pasteId));
-  if (foundPaste) {
-    res.locals.paste = foundPaste;
-    return next();
-  }
-  next({
-    status: 404,
-    message: `Paste id not found: ${pasteId}`,
-  });
+    const { pasteId } = req.params;
+    const foundPaste = pastes.find((paste) => paste.id === Number(pasteId));
+    if (foundPaste) {
+        res.locals.paste = foundPaste;
+        return next();
+    }
+    next({
+        status: 404,
+        message: `Paste id not found: ${pasteId}`,
+    });
 }
 
 // Main paste Handlers
 
 function list(req, res) {
-    res.json({ data: pastes });
+    const { userId } = req.params;
+    res.json({ data: pastes.filter(userId ? (paste) => paste.user_id == userId : () => true) });
 }
 
 function read(req, res) {
-  const { pasteId } = req.params;
-  const foundPaste = res.locals.paste;
-  res.json({ data: foundPaste });
+    const foundPaste = res.locals.paste;
+    res.json({ data: foundPaste });
 }
 
 function create(req, res, next) {
@@ -93,9 +91,8 @@ function create(req, res, next) {
 }
 
 function update(req, res) {
-    const {pasteId} = req.params;
     const foundPaste = res.locals.paste;
-    const { data: { name, syntax, expiration, exposure, text } = {}} = req.body;
+    const { data: { name, syntax, expiration, exposure, text } = {} } = req.body;
 
     // Update the paste
     foundPaste.name = name;
@@ -140,7 +137,7 @@ module.exports = {
         exposurePropertyIsValid,
         syntaxPropertyIsValid,
         expirationIsValidNumber,
-        update
+        update,
     ],
     delete: [pasteExists, destroy],
 };
